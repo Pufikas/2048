@@ -7,7 +7,7 @@ const grid = new Grid(gameBoard);
 
 setupInput();
 
-console.log(grid.cellsByColumn())
+console.log(grid.cellsByColumn)
 console.log(grid.randomEmptyCell())
 grid.randomEmptyCell().tile = new Tile(gameBoard);
 grid.randomEmptyCell().tile = new Tile(gameBoard);
@@ -35,11 +35,54 @@ function handleInput(e) {
             setupInput();
             return;
     }
+
+    grid.cells.forEach(cell => cell.mergeTiles());
+
     setupInput();
 }
 
+// controls begin
+    function moveUp() {
+        return slideTiles(grid.cellsByColumn);
+    }
 
+    function moveDown() {
+        return slideTiles(grid.cellsByColumn.map(column => [...column].reverse()));
+    }
 
-function moveUp() {
-    return slideTiles(grid.cellsByColumn);
+    function moveLeft() {
+        return slideTiles(grid.cellsByRow);
+    }
+
+    function moveRight() {
+        return slideTiles(grid.cellsByRow.map(row => [...row].reverse()));
+    }
+// controls end
+
+function slideTiles(cells) {
+    cells.forEach(group => {
+        for (let i = 1; i < group.length; i++) {
+            const cell = group[i];
+
+            if (cell.tile == null) continue;
+
+            let lastValidCell;
+            for (let j = i - 1; j >= 0; j--) { // checks if it can move up (above i)
+                const moveToCell = group[j];
+                
+                if (!moveToCell.canAccept(cell.tile)) break; // exit if it can't
+                lastValidCell = moveToCell;
+            }
+
+            if (lastValidCell != null) {
+                if (lastValidCell.tile != null) { // if it has a tile
+                    lastValidCell.mergeTile = cell.tile;
+                } else {
+                    lastValidCell.tile = cell.tile;
+                }
+                cell.tile = null;
+            }
+        }
+    })
 }
+

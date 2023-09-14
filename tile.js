@@ -38,4 +38,8 @@ export default class Tile {
         this.#y = value;
         this.#tileElement.style.setProperty("--y", value);
     }
+
+    remove() {
+        this.#tileElement.remove();
+    }
 }
