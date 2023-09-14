@@ -26,12 +26,12 @@ body {
     position: relative;
 }
 
-#cell {
+.cell {
     background-color: #AAA;
     border-radius: 1vmin;
 }
 
-#tile {
+.tile {
     --x: 2;
     --y: 2;
 
