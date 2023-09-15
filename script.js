@@ -16,24 +16,25 @@ function setupInput() {
     window.addEventListener("keydown", handleInput, { once: true });
 }
 
-function handleInput(e) {
+async function handleInput(e) {
     console.log(e.key)
     switch (e.key) {
         case "ArrowUp":
-            moveUp();
+            await moveUp();
             break;
         case "ArrowDown":
-            moveDown();
+            await moveDown();
             break;
         case "ArrowLeft":
-            moveLeft();
+            await moveLeft();
             break;
         case "ArrowRight":
-            moveRight();
+            await moveRight();
             break;
         default:
             setupInput();
             return;
+            // await since we want to wait for the css animation (when merging etc.)
     }
 
     grid.cells.forEach(cell => cell.mergeTiles());
@@ -60,7 +61,9 @@ function handleInput(e) {
 // controls end
 
 function slideTiles(cells) {
-    cells.forEach(group => {
+    return Promise.all(
+    cells.flatMap(group => { // single dimension array
+        const promises = [];
         for (let i = 1; i < group.length; i++) {
             const cell = group[i];
 
@@ -75,6 +78,7 @@ function slideTiles(cells) {
             }
 
             if (lastValidCell != null) {
+                promises.push(cell.tile.waitForTransition()); // makes sure to wait for animations to finish
                 if (lastValidCell.tile != null) { // if it has a tile
                     lastValidCell.mergeTile = cell.tile;
                 } else {
@@ -83,6 +87,7 @@ function slideTiles(cells) {
                 cell.tile = null;
             }
         }
-    })
+        return promises;
+    }))
 }
 
